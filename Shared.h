@@ -8,23 +8,29 @@ namespace sp {
   template<typename T>
   class Shared {
   public:
-    Shared(T* ptr = nullptr) {
-    }
+    Shared(T* ptr = nullptr)
+    : pointer(ptr)
+    { }
 
     ~Shared() {
+    
     }
 
-    Shared(const Shared<T>& other) {
-    }
+    Shared(const Shared<T>& other)
+    : pointer(other.pointer)
+    { }
 
     Shared(Shared&& other) {
+      std::swap(this->pointer, other.pointer);
     }
 
     Shared& operator=(const Shared& other) {
+      this->pointer = other.pointer;
       return *this;
     }
 
     Shared& operator=(Shared&& other) {
+      std::swap(this->pointer, other.pointer);
       return *this;
     }
 
