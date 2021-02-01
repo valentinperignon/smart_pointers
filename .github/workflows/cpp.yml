@@ -1,0 +1,39 @@
+name: C++ CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-gcc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: create build directory
+        run: mkdir build
+      - name: cmake
+        run: cmake ..
+        working-directory: build
+      - name: build
+        run: make
+        working-directory: build
+      - name: GoogleTest
+        run: ./testPointers
+        working-directory: build
+  build-clang:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: create build directory
+        run: mkdir build
+      - name: cmake
+        run: CC=clang CXX=clang++ cmake ..
+        working-directory: build
+      - name: build
+        run: make
+        working-directory: build
+      - name: GoogleTest
+        run: ./testPointers
+        working-directory: build
