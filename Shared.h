@@ -29,15 +29,15 @@ namespace sp {
     }
 
     T* get() {
-      return nullptr;
+      return this->pointer;
     }
 
     T& operator*() {
-      return T();
+      return *(this->pointer);
     }
 
     T* operator->() {
-      return nullptr;
+      return this->pointer;
     }
 
     std::size_t count() const {
@@ -45,13 +45,13 @@ namespace sp {
     }
 
     bool exists() const {
-      return false;
+      return this->pointer != nullptr;
     }
 
     template<typename> friend class Weak;
 
   private:
-    // implementation defined
+    T* pointer;
   };
 }
 
