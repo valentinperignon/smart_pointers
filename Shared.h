@@ -51,7 +51,7 @@ namespace sp {
     template<typename> friend class Weak;
 
   private:
-    // implementation defined
+
   };
 }
 

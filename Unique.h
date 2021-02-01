@@ -5,41 +5,43 @@ namespace sp {
   template<typename T>
   class Unique {
   public:
-    Unique(T* ptr = nullptr) {
-    }
+    Unique(T* ptr = nullptr)
+      : pointer(ptr)
+    { }
 
     ~Unique() {
+      delete this->pointer;
     }
 
     Unique(const Unique<T>& other) = delete;
 
-    Unique(Unique&& other) {
-    }
+    Unique(Unique&& other) : pointer(std::exchange(other.pointer, nullptr)) {}
 
     Unique& operator=(const Unique& other) = delete;
 
     Unique& operator=(Unique&& other) {
+      std::swap(this->pointer, other.pointer);
       return *this;
     }
 
     T* get() {
-      return nullptr;
+      return this->pointer;
     }
 
     T& operator*() {
-      return T();
+      return *(this->pointer);
     }
 
     T* operator->() {
-      return nullptr;
+      return this->pointer;
     }
 
     bool exists() const {
-      return false;
+      return this->pointer != nullptr;
     }
 
   private:
-    // implementation defined
+    T* pointer;
   };
 }
 
