@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - uses: textbook/git-checkout-submodule-action@master
       - name: create build directory
         run: mkdir build
       - name: cmake
@@ -26,6 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - uses: textbook/git-checkout-submodule-action@master
       - name: create build directory
         run: mkdir build
       - name: cmake
