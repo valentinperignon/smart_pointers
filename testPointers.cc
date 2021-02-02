@@ -4,6 +4,9 @@
 #include "Weak.h"
 #include "Unique.h"
 
+template<typename T>
+std::map<T*, size_t> sp::Shared<T>::listOfPointers;
+
 TEST(Test, test) {
   sp::Shared<int> shared;
   sp::Weak<int> weak;
