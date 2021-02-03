@@ -8,6 +8,24 @@
 #include <iostream>
 
 namespace sp {
+  class PtrCounter {
+  public:
+    PtrCounter();
+
+    size_t get() const;
+
+    void operator++();
+
+    void operator++(int);
+
+    void operator--();
+
+    void operator--(int);
+
+  private:
+    size_t count;  
+  };
+
   /**
    * @brief Smart shared pointer class
    */
@@ -19,23 +37,21 @@ namespace sp {
      */
     Shared(T* ptr = nullptr)
     : pointer(ptr)
+    , counter(new PtrCounter())
     {
-      std::size_t newValue = 1;
-      if (auto it = Shared<T>::listOfPointers.find(ptr); it != Shared<T>::listOfPointers.end()) {
-        newValue = it->second + 1;
+      if (this->pointer != nullptr) {
+        ++(*this->counter);
       }
-      Shared::listOfPointers[ptr] = newValue;
     }
 
     /**
      * @brief Destructor
      */
     ~Shared() {
-      if (auto it = Shared<T>::listOfPointers.find(this->pointer); it->second == 1) {
-        Shared<T>::listOfPointers.erase(it);
+      --(*this->counter);
+      if (this->counter->get() <= 0) {
         delete this->pointer;
-      } else {
-        it->second -= 1;
+        delete this->counter;
       }
     }
 
@@ -44,8 +60,9 @@ namespace sp {
      */
     Shared(const Shared<T>& other)
     : pointer(other.pointer)
+    , counter(other.counter)
     {
-      Shared<T>::listOfPointers[other.pointer] += 1;
+      ++(*this->counter);
     }
 
     /**
@@ -61,15 +78,14 @@ namespace sp {
      * @brief Copy assignment
      */
     Shared& operator=(const Shared& other) {
-      Shared<T>::listOfPointers[this->pointer] -= 1;
-      auto it = Shared<T>::listOfPointers.find(this->pointer);
-      it->second -= 1;
-      if (it->second == 0) {
+      if (this->counter->get() == 0) {
         delete this->pointer;
-        Shared<T>::listOfPointers.erase(it);
+        delete this->counter;
       }
-      Shared<T>::listOfPointers[other.pointer] += 1;
+
       this->pointer = other.pointer;
+      this->counter = other.counter;
+      ++(*this->counter);
       return *this;
     }
 
@@ -78,7 +94,6 @@ namespace sp {
      */
     Shared& operator=(Shared&& other) {
       std::cout << "TODO" << std::endl;
-      this->pointer = nullptr;
       return *this;
     }
 
@@ -107,7 +122,7 @@ namespace sp {
      * @brief Get the reference number on raw data
      */
     std::size_t count() const {
-      return Shared<T>::listOfPointers[this->pointer];
+      return this->counter->get();
     }
 
     /**
@@ -121,7 +136,7 @@ namespace sp {
 
   private:
     T* pointer;
-    static std::map<T*, size_t> listOfPointers;
+    PtrCounter* counter;
   };
 }
 

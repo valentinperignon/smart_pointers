@@ -4,9 +4,6 @@
 #include "Weak.h"
 #include "Unique.h"
 
-template<typename T>
-std::map<T*, size_t> sp::Shared<T>::listOfPointers;
-
 TEST(Test, test) {
   sp::Shared<int> shared;
   sp::Weak<int> weak;
@@ -102,19 +99,6 @@ TEST(TestSharedPointer, DefaultConstructor) {
   EXPECT_FALSE(sh.exists());
 }
 
-TEST(TestSharedPointer, SharedPointer) {
-  int* i = new int(42);
-
-  sp::Shared<int> sh1(i);
-  EXPECT_TRUE(sh1.exists());
-
-  sp::Shared<int> sh2(i);
-  EXPECT_TRUE(sh2.exists());
-
-  EXPECT_EQ(*sh1, 42);
-  EXPECT_EQ(*sh2, 42);
-}
-
 TEST(TestSharedPointer, CopyConstructorAndAssignement) {
   sp::Shared<int> sh1(new int(42));
   EXPECT_TRUE(sh1.exists());
@@ -130,8 +114,8 @@ TEST(TestSharedPointer, Get) {
   sp::Shared<int> sh(new int(42));
 
   EXPECT_EQ(*(sh.get()), 42);
-  *(sh.get()) = 24;
-  EXPECT_EQ(*sh, 24);
+  *(sh.get()) = 4242;
+  EXPECT_EQ(*sh, 4242);
 }
 
 TEST(TestSharedPointer, StarOperator) {
@@ -156,9 +140,7 @@ TEST(TestSharedPointer, ArrowPointer) {
 }
 
 TEST(TestSharedPointer, Count) {
-  int* i = new int(42);
-
-  sp::Shared<int> sh1(i);
+  sp::Shared<int> sh1(new int(42));
   EXPECT_EQ(sh1.count(), 1u);
 
   sp::Shared<int> sh2 = sh1;
