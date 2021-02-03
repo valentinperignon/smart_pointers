@@ -8,9 +8,15 @@
 #include <iostream>
 
 namespace sp {
+  /**
+   * @brief Smart shared pointer class
+   */
   template<typename T>
   class Shared {
   public:
+    /**
+     * @brief Constructor takes a dynamic pointer
+     */
     Shared(T* ptr = nullptr)
     : pointer(ptr)
     {
@@ -21,6 +27,9 @@ namespace sp {
       Shared::listOfPointers[ptr] = newValue;
     }
 
+    /**
+     * @brief Destructor
+     */
     ~Shared() {
       if (auto it = Shared<T>::listOfPointers.find(this->pointer); it->second == 1) {
         Shared<T>::listOfPointers.erase(it);
@@ -30,18 +39,27 @@ namespace sp {
       }
     }
 
+    /**
+     * @brief Copy constructor
+     */
     Shared(const Shared<T>& other)
     : pointer(other.pointer)
     {
       Shared<T>::listOfPointers[other.pointer] += 1;
     }
 
+    /**
+     * @brief Move constructor
+     */
     Shared(Shared&& other)
     : pointer(nullptr)
     {
       std::cout << "TODO" << std::endl;
     }
 
+    /**
+     * @brief Copy assignment
+     */
     Shared& operator=(const Shared& other) {
       Shared<T>::listOfPointers[this->pointer] -= 1;
       auto it = Shared<T>::listOfPointers.find(this->pointer);
@@ -55,28 +73,46 @@ namespace sp {
       return *this;
     }
 
+    /**
+     * @brief Move assignment
+     */
     Shared& operator=(Shared&& other) {
       std::cout << "TODO" << std::endl;
       this->pointer = nullptr;
       return *this;
     }
 
+    /**
+     * @brief Get the raw pointer
+     */
     T* get() {
       return this->pointer;
     }
 
+    /**
+     * @brief Get a reference on pointed data
+     */
     T& operator*() {
       return *(this->pointer);
     }
 
+    /**
+     * @brief Get the raw pointer
+     */
     T* operator->() {
       return this->pointer;
     }
 
+    /**
+     * @brief Get the reference number on raw data
+     */
     std::size_t count() const {
       return Shared<T>::listOfPointers[this->pointer];
     }
 
+    /**
+     * @brief Get the number of Shared pointed on the current pointer
+     */
     bool exists() const {
       return this->pointer != nullptr;
     }
