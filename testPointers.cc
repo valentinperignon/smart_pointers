@@ -102,6 +102,19 @@ TEST(TestSharedPointer, DefaultConstructor) {
   EXPECT_FALSE(sh.exists());
 }
 
+TEST(TestSharedPointer, SharedPointer) {
+  int* i = new int(42);
+
+  sp::Shared<int> sh1(i);
+  EXPECT_TRUE(sh1.exists());
+
+  sp::Shared<int> sh2(i);
+  EXPECT_TRUE(sh2.exists());
+
+  EXPECT_EQ(*sh1, 42);
+  EXPECT_EQ(*sh2, 42);
+}
+
 TEST(TestSharedPointer, CopyConstructorAndAssignement) {
   sp::Shared<int> sh1(new int(42));
   EXPECT_TRUE(sh1.exists());
@@ -113,26 +126,59 @@ TEST(TestSharedPointer, CopyConstructorAndAssignement) {
   EXPECT_EQ(*sh2, 42);
 }
 
-TEST(TestSharedPointer, MoveConstructorAndAssignement) {
-  sp::Shared<int> sh1(new int(42));
-  EXPECT_TRUE(sh1.exists());
+TEST(TestSharedPointer, Get) {
+  sp::Shared<int> sh(new int(42));
 
-  sp::Shared<int> sh2 = std::move(sh1);
-  EXPECT_TRUE(sh2.exists());
-  EXPECT_EQ(*sh2, 42);
-
-  sp::Shared<int> sh3;
-  sh3 = std::move(sh2);
-  EXPECT_TRUE(sh3.exists());
-  EXPECT_EQ(*sh3, 42);
+  EXPECT_EQ(*(sh.get()), 42);
+  *(sh.get()) = 24;
+  EXPECT_EQ(*sh, 24);
 }
 
-TEST(TestSharedPointer, GetPointer) {
+TEST(TestSharedPointer, StarOperator) {
   sp::Shared<int> sh(new int(42));
 
   EXPECT_EQ(*sh, 42);
   *sh = 4242;
   EXPECT_EQ(*sh, 4242);
+}
+
+TEST(TestSharedPointer, ArrowPointer) {
+  struct t {
+    int a;
+    int b;
+  };
+
+  sp::Shared<t> sh(new t);
+  sh.get()->a = 42;
+  sh.get()->b = 4242;
+  EXPECT_EQ(sh->a, 42);
+  EXPECT_EQ(sh->b, 4242);
+}
+
+TEST(TestSharedPointer, Count) {
+  int* i = new int(42);
+
+  sp::Shared<int> sh1(i);
+  EXPECT_EQ(sh1.count(), 1u);
+
+  sp::Shared<int> sh2 = sh1;
+  EXPECT_EQ(sh1.count(), 2u);
+  EXPECT_EQ(sh2.count(), 2u);
+
+  {
+    sp::Shared<int> tmp = sh2;
+    EXPECT_EQ(sh1.count(), 3u);
+    EXPECT_EQ(sh2.count(), 3u);
+    EXPECT_EQ(tmp.count(), 3u);
+  }
+  EXPECT_EQ(sh1.count(), 2u);
+  EXPECT_EQ(sh2.count(), 2u);
+
+  sp::Shared<int> sh3;
+  sh3 = sh1;
+  EXPECT_EQ(sh1.count(), 3u);
+  EXPECT_EQ(sh2.count(), 3u);
+  EXPECT_EQ(sh3.count(), 3u);
 }
 
 int main(int argc, char* argv[]) {

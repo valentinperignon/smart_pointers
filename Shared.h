@@ -36,8 +36,10 @@ namespace sp {
       Shared<T>::listOfPointers[other.pointer] += 1;
     }
 
-    Shared(Shared&& other) {
-      std::swap(this->pointer, other.pointer);
+    Shared(Shared&& other)
+    : pointer(nullptr)
+    {
+      std::cout << "TODO" << std::endl;
     }
 
     Shared& operator=(const Shared& other) {
@@ -54,7 +56,8 @@ namespace sp {
     }
 
     Shared& operator=(Shared&& other) {
-      std::swap(this->pointer, other.pointer);
+      std::cout << "TODO" << std::endl;
+      this->pointer = nullptr;
       return *this;
     }
 
@@ -71,7 +74,7 @@ namespace sp {
     }
 
     std::size_t count() const {
-      return 0;
+      return Shared<T>::listOfPointers[this->pointer];
     }
 
     bool exists() const {
