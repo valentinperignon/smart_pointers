@@ -153,7 +153,7 @@ namespace sp {
 
         if (use_counter->get() == 0) {
           delete pointer;
-          pointer = nullptr;
+
 
           if (weak_counter->get() == 0) {
             delete use_counter;
@@ -161,7 +161,9 @@ namespace sp {
             use_counter = nullptr;
             weak_counter = nullptr;
           }
+
         }
+        pointer = nullptr;
       }
       else {
         assert(use_counter == nullptr);

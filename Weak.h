@@ -110,13 +110,13 @@ namespace sp {
     void clean() {
       if (pointer) {
         (*weak_counter)--;
-        std::cout << use_counter->get() << "-" << weak_counter->get() << std::endl;
         if (use_counter->get() == 0 && weak_counter->get() == 0) {
           delete use_counter;
           delete weak_counter;
           use_counter = nullptr;
           weak_counter = nullptr;
         }
+        pointer = nullptr;
       }
       else {
         assert(use_counter == nullptr);

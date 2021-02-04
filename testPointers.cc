@@ -12,20 +12,17 @@ TEST(Test, test) {
 
 /* ---------- Unique Pointer ---------- */
 
-TEST(MoveConstructor, Default) {
+TEST(TestUniquePointer, Move) {
   sp::Unique<int> first(new int(4));
-
 
   sp::Unique<int> second = std::move(first);
 
   EXPECT_EQ(first.get(), nullptr);
 
-
-
   EXPECT_EQ(*second, 4);
 }
 
-TEST(MoveConstructor, Empty) {
+TEST(TestUniquePointer, MoveEmpty) {
   sp::Unique<int> first;
 
   EXPECT_FALSE(first.exists());
@@ -38,7 +35,7 @@ TEST(MoveConstructor, Empty) {
   EXPECT_EQ(second.get(), nullptr);
 }
 
-TEST(MoveAssignment, Default) {
+TEST(TestUniquePointer, MoveAssignment) {
   sp::Unique<int> first(new int(6));
 
   sp::Unique<int> second;
@@ -50,19 +47,19 @@ TEST(MoveAssignment, Default) {
   EXPECT_EQ(*second, 6);
 }
 
-TEST(DoesExist, Default) {
+TEST(TestUniquePointer, DoesExist) {
   sp::Unique<int> unique(new int(42));
   EXPECT_NE(unique.get(), nullptr);
   EXPECT_TRUE(unique.exists());
 }
 
-TEST(DoesNotExist, Default) {
+TEST(TestUniquePointer, DoesNotExist) {
   sp::Unique<int> unique;
   EXPECT_EQ(unique.get(), nullptr);
   EXPECT_FALSE(unique.exists());
 }
 
-TEST(StarOperator, Default) {
+TEST(TestUniquePointer, StarOperator) {
   sp::Unique<int> unique(new int(3));
   ++(*unique);
   std::cout << *unique << std::endl;
@@ -71,13 +68,13 @@ TEST(StarOperator, Default) {
   EXPECT_TRUE(unique.exists());
 }
 
-TEST(Get, Default) {
+TEST(TestUniquePointer, Get) {
   sp::Unique<int> unique(new int(19));
 
   EXPECT_EQ(*unique.get(), 19);
 }
 
-TEST(Get, Assigment) {
+TEST(TestUniquePointer, GetModified) {
   sp::Unique<int> unique(new int(15));
 
   int* number = unique.get();
@@ -176,6 +173,16 @@ TEST(TestWeakPointer, Default) {
     (*tmp) /= 2;
     EXPECT_EQ(*tmp, 21);
 
+  }
+
+  shared = sp::Shared<int>(new int(1337));
+  sp::Weak<int> weak2(shared);
+  {
+    auto tmp = weak1.lock();
+    EXPECT_FALSE(tmp.exists());
+
+    tmp = weak2.lock();
+    EXPECT_EQ(*tmp, 1337);
   }
 
 }
