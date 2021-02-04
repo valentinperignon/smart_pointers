@@ -13,13 +13,23 @@ namespace sp {
     /**
      * @brief Default constructor
      */
-    Weak() {
+    Weak() :
+      pointer(nullptr)
+      , use_counter()
+      , weak_counter()
+    {
+
     }
 
     /**
      * @brief Constructor takes a Shared pointer
      */
-    Weak(const Shared<T>& shared) {
+    Weak(const Shared<T>& shared) :
+      pointer(nullptr)
+      , use_counter()
+      , weak_counter()
+    {
+      weak_counter++;
     }
 
     /**
@@ -74,6 +84,10 @@ namespace sp {
 
   private:
     // implementation defined
+
+    T* pointer;
+    PtrCounter* use_counter;
+    PtrCounter* weak_counter;
   };
 }
 

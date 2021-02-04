@@ -23,7 +23,7 @@ namespace sp {
     void operator--(int);
 
   private:
-    size_t count;  
+    size_t count;
   };
 
   /**
@@ -36,11 +36,12 @@ namespace sp {
      * @brief Constructor takes a dynamic pointer
      */
     Shared(T* ptr = nullptr)
-    : pointer(ptr)
-    , counter(new PtrCounter())
+      : pointer(ptr)
+      , use_counter(ptr ? new PtrCounter() : nullptr)
+      , weak_counter(ptr ? new PtrCounter() : nullptr)
     {
       if (this->pointer != nullptr) {
-        ++(*this->counter);
+        ++(*this->use_counter);
       }
     }
 
@@ -48,44 +49,41 @@ namespace sp {
      * @brief Destructor
      */
     ~Shared() {
-      --(*this->counter);
-      if (this->counter->get() <= 0) {
-        delete this->pointer;
-        delete this->counter;
-      }
+      clean();
     }
 
     /**
      * @brief Copy constructor
      */
     Shared(const Shared<T>& other)
-    : pointer(other.pointer)
-    , counter(other.counter)
+      : pointer(other.pointer)
+      , use_counter(other.use_counter)
+      , weak_counter(other.weak_counter)
     {
-      ++(*this->counter);
+      ++(*this->use_counter);
     }
 
     /**
      * @brief Move constructor
      */
     Shared(Shared&& other)
-    : pointer(nullptr)
+      : pointer(std::exchange(other.pointer, nullptr))
+      , use_counter(std::exchange(other.use_counter, nullptr))
+      , weak_counter(std::exchange(other.weak_counter, nullptr))
     {
-      std::cout << "TODO" << std::endl;
+
     }
 
     /**
      * @brief Copy assignment
      */
     Shared& operator=(const Shared& other) {
-      if (this->counter->get() == 0) {
-        delete this->pointer;
-        delete this->counter;
-      }
+      clean();
 
       this->pointer = other.pointer;
-      this->counter = other.counter;
-      ++(*this->counter);
+      this->use_counter = other.use_counter;
+      this->weak_counter = other.weak_counter;
+      ++(*this->use_counter);
       return *this;
     }
 
@@ -93,7 +91,10 @@ namespace sp {
      * @brief Move assignment
      */
     Shared& operator=(Shared&& other) {
-      std::cout << "TODO" << std::endl;
+
+      std::swap(pointer, other.pointer);
+      std::swap(use_counter, other.use_counter);
+      std::swap(weak_counter, other.weak_counter);
       return *this;
     }
 
@@ -122,7 +123,7 @@ namespace sp {
      * @brief Get the reference number on raw data
      */
     std::size_t count() const {
-      return this->counter->get();
+      return this->use_counter->get();
     }
 
     /**
@@ -135,8 +136,28 @@ namespace sp {
     template<typename> friend class Weak;
 
   private:
+
+    void clean() {
+      if (pointer) {
+        --(*use_counter);
+
+        if (use_counter->get() == 0) {
+          delete pointer;
+          pointer = nullptr;
+
+          if (weak_counter->get() == 0) {
+            delete use_counter;
+            delete weak_counter;
+            use_counter = nullptr;
+            weak_counter = nullptr;
+          }
+        }
+      }
+    }
+
     T* pointer;
-    PtrCounter* counter;
+    PtrCounter* use_counter;
+    PtrCounter* weak_counter;
   };
 }
 

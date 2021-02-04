@@ -2,7 +2,7 @@
 
 namespace sp {
   PtrCounter::PtrCounter()
-  : count(0)
+    : count(0)
   { }
 
   size_t PtrCounter::get() const {
