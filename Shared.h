@@ -3,7 +3,7 @@
 
 #include <cstddef>
 #include <utility>
-#include <map>
+#include <cassert>
 
 #include <iostream>
 
@@ -70,9 +70,7 @@ namespace sp {
       : pointer(std::exchange(other.pointer, nullptr))
       , use_counter(std::exchange(other.use_counter, nullptr))
       , weak_counter(std::exchange(other.weak_counter, nullptr))
-    {
-
-    }
+    {}
 
     /**
      * @brief Copy assignment
@@ -83,7 +81,9 @@ namespace sp {
       this->pointer = other.pointer;
       this->use_counter = other.use_counter;
       this->weak_counter = other.weak_counter;
+
       ++(*this->use_counter);
+
       return *this;
     }
 
@@ -91,7 +91,6 @@ namespace sp {
      * @brief Move assignment
      */
     Shared& operator=(Shared&& other) {
-
       std::swap(pointer, other.pointer);
       std::swap(use_counter, other.use_counter);
       std::swap(weak_counter, other.weak_counter);
@@ -137,6 +136,17 @@ namespace sp {
 
   private:
 
+    Shared(T* ptr, PtrCounter* use_counter, PtrCounter* weak_counter)
+      : pointer(ptr)
+      , use_counter(use_counter)
+      , weak_counter(weak_counter)
+    {}
+
+    /**
+     * Reset the shared pointer
+     * Delete the resource if there is no longer a shared pointer that references it
+     * And delete the counter if there is no longer weak pointer that reference it
+     */
     void clean() {
       if (pointer) {
         --(*use_counter);
@@ -152,6 +162,10 @@ namespace sp {
             weak_counter = nullptr;
           }
         }
+      }
+      else {
+        assert(use_counter == nullptr);
+        assert(weak_counter == nullptr);
       }
     }
 

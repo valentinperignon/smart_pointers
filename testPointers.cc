@@ -163,6 +163,23 @@ TEST(TestSharedPointer, Count) {
   EXPECT_EQ(sh3.count(), 3u);
 }
 
+/* ---------- Shared Pointer ---------- */
+
+TEST(TestWeakPointer, Default) {
+  sp::Shared<int> shared(new int(42));
+  EXPECT_EQ(*shared, 42);
+
+  sp::Weak<int> weak1(shared);
+  {
+    auto tmp = weak1.lock();
+    EXPECT_TRUE(tmp.exists());
+    (*tmp) /= 2;
+    EXPECT_EQ(*tmp, 21);
+
+  }
+
+}
+
 int main(int argc, char* argv[]) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
