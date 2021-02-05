@@ -76,7 +76,11 @@ namespace sp {
      * @brief Copy assignment
      */
     Shared& operator=(const Shared& other) {
+      if (pointer)
+        std::cout << use_counter->get();
       clean();
+      if (pointer)
+        std::cout << use_counter->get();
 
       this->pointer = other.pointer;
       this->use_counter = other.use_counter;
@@ -132,6 +136,19 @@ namespace sp {
       return this->pointer != nullptr;
     }
 
+    void print(const std::string str = "") const {
+      if (pointer) {
+        std::cout << "[" << str << "]" << " - ";
+        std::cout << "V = " << *pointer << " | ";
+        std::cout << "U = " << use_counter->get() << " | ";
+        std::cout << "W = " << weak_counter->get() << std::endl;
+
+      }
+      else {
+        std::cout << str << "- No exists\n";
+      }
+    }
+
     template<typename> friend class Weak;
 
   private:
@@ -149,21 +166,25 @@ namespace sp {
      */
     void clean() {
       if (pointer) {
+        //T number = *pointer;
         --(*use_counter);
+        //std::cout << "shared cleaned 1," << number << std::endl;
 
         if (use_counter->get() == 0) {
+          //std::cout << "shared cleaned 2," << number << std::endl;
           delete pointer;
 
 
           if (weak_counter->get() == 0) {
+            //std::cout << "shared cleaned 3," << number << std::endl;
             delete use_counter;
             delete weak_counter;
             use_counter = nullptr;
             weak_counter = nullptr;
           }
 
+          pointer = nullptr;
         }
-        pointer = nullptr;
       }
       else {
         assert(use_counter == nullptr);

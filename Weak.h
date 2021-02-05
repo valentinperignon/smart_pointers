@@ -101,22 +101,36 @@ namespace sp {
      * retrun a non existing Shared pointeur.
      */
     Shared<T> lock() {
+
+      if (use_counter->get() == 0) {
+        return Shared<T>();
+      }
       (*use_counter)++;
-      return Shared<int>(pointer, use_counter, weak_counter);
+      return Shared<T>(pointer, use_counter, weak_counter);
+    }
+
+    void print(const std::string str = "") const {
+      if (pointer) {
+        std::cout << "[" << str << "]" << " - ";
+        std::cout << "U = " << use_counter->get() << " | ";
+        std::cout << "W = " << weak_counter->get() << std::endl;
+      }
     }
 
   private:
 
     void clean() {
       if (pointer) {
+        pointer = nullptr;
+        //std::cout << "weak cleaned 1\n";
         (*weak_counter)--;
         if (use_counter->get() == 0 && weak_counter->get() == 0) {
+          //std::cout << "weak cleaned 2\n";
           delete use_counter;
           delete weak_counter;
           use_counter = nullptr;
           weak_counter = nullptr;
         }
-        pointer = nullptr;
       }
       else {
         assert(use_counter == nullptr);
