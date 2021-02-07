@@ -177,8 +177,15 @@ TEST(TestSharedPointer, Count) {
 /* ---------- Weak Pointer ---------- */
 
 TEST(TestWeakPointer, ConstructorWithValue) {
-  sp::Weak<int> wk(sp::Shared<int>(new int(42)));
-  EXPECT_TRUE(wk.lock().exists());
+  sp::Shared<int> sh(new int(42));
+
+  sp::Weak<int> wk(sh);
+  EXPECT_EQ(sh.count(), 1u);
+  sp::Shared<int> shFromWk = wk.lock();
+  EXPECT_EQ(sh.count(), 2u);
+
+  EXPECT_TRUE(shFromWk.exists());
+  EXPECT_EQ(*shFromWk, 42);
 }
 
 int main(int argc, char* argv[]) {
