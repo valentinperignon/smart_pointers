@@ -1,33 +1,36 @@
 #include "Shared.h"
 
 namespace sp {
-  PtrCounter::PtrCounter()
-  : count(0)
-  { }
+  ControlBlock::ControlBlock()
+    : useCount(0)
+    , weakCount(0)
+  {}
 
-  size_t PtrCounter::get() const {
-    return this->count;
+  void ControlBlock::increaseUsePointer() {
+    ++this->useCount;
   }
 
-  void PtrCounter::operator++() {
-    this->count++;
-  }
-
-  void PtrCounter::operator++(int) {
-    this->count++;
-  }
-
-  void PtrCounter::operator--() {
-    if (this->count == 0) {
-      return;
+  void ControlBlock::decreaseUsePointer() {
+    if (this->useCount > 0) {
+      --this->useCount;
     }
-    this->count--;
   }
 
-  void PtrCounter::operator--(int) {
-    if (this->count == 0) {
-      return;
+  void ControlBlock::increaseWeakPointer() {
+    ++this->weakCount;
+  }
+
+  void ControlBlock::decreaseWeakPointer() {
+    if (this->weakCount > 0) {
+      --this->weakCount;
     }
-    this->count--;
+  }
+
+  size_t ControlBlock::getUsePointer() const {
+    return this->useCount;
+  }
+
+  size_t ControlBlock::getWeakPointer() const {
+    return this->weakCount;
   }
 }

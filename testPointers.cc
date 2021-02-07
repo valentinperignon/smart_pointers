@@ -4,12 +4,6 @@
 #include "Weak.h"
 #include "Unique.h"
 
-TEST(Test, test) {
-  sp::Shared<int> shared;
-  sp::Weak<int> weak;
-  sp::Unique<int> unique;
-}
-
 /* ---------- Unique Pointer ---------- */
 
 TEST(MoveConstructor, Default) {
@@ -106,8 +100,25 @@ TEST(TestSharedPointer, CopyConstructorAndAssignement) {
   sp::Shared<int> sh2 = sh1;
   EXPECT_TRUE(sh2.exists());
 
+  sp::Shared<int> sh3;
+  sh3 = sh2;
+  EXPECT_TRUE(sh3.exists());
+
   EXPECT_EQ(*sh1, 42);
   EXPECT_EQ(*sh2, 42);
+  EXPECT_EQ(*sh3, 42);
+}
+
+TEST(TestSharedPointer, MoveConstructorAndAssignement) {
+  sp::Shared<int> sh1(new int(42));
+  EXPECT_TRUE(sh1.exists());
+
+  sp::Shared<int> sh2 = std::move(sh1);
+  EXPECT_TRUE(sh2.exists());
+
+  sp::Shared<int> sh3;
+  sh3 = std::move(sh2);
+  EXPECT_TRUE(sh3.exists());
 }
 
 TEST(TestSharedPointer, Get) {
@@ -161,6 +172,13 @@ TEST(TestSharedPointer, Count) {
   EXPECT_EQ(sh1.count(), 3u);
   EXPECT_EQ(sh2.count(), 3u);
   EXPECT_EQ(sh3.count(), 3u);
+}
+
+/* ---------- Weak Pointer ---------- */
+
+TEST(TestWeakPointer, ConstructorWithValue) {
+  sp::Weak<int> wk(sp::Shared<int>(new int(42)));
+  EXPECT_TRUE(wk.lock().exists());
 }
 
 int main(int argc, char* argv[]) {

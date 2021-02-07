@@ -3,27 +3,33 @@
 
 #include <cstddef>
 #include <utility>
-#include <map>
 
 #include <iostream>
 
 namespace sp {
-  class PtrCounter {
+  /**
+   * @brief Counter of smart pointers
+   */
+  class ControlBlock {
   public:
-    PtrCounter();
+    ControlBlock();
 
-    size_t get() const;
+    size_t getUsePointer() const;
 
-    void operator++();
+    size_t getWeakPointer() const;
 
-    void operator++(int);
+    void increaseUsePointer();
 
-    void operator--();
+    void decreaseUsePointer();
 
-    void operator--(int);
+    void increaseWeakPointer();
+
+    void decreaseWeakPointer();
 
   private:
-    size_t count;  
+    size_t useCount;
+
+    size_t weakCount;  
   };
 
   /**
@@ -36,11 +42,11 @@ namespace sp {
      * @brief Constructor takes a dynamic pointer
      */
     Shared(T* ptr = nullptr)
-    : pointer(ptr)
-    , counter(new PtrCounter())
+      : pointer(ptr)
+      , controlBlock(ptr != nullptr ? new ControlBlock() : nullptr)
     {
       if (this->pointer != nullptr) {
-        ++(*this->counter);
+        this->controlBlock->increaseUsePointer();
       }
     }
 
@@ -48,44 +54,36 @@ namespace sp {
      * @brief Destructor
      */
     ~Shared() {
-      --(*this->counter);
-      if (this->counter->get() <= 0) {
-        delete this->pointer;
-        delete this->counter;
-      }
+      deletePointers();
     }
 
     /**
      * @brief Copy constructor
      */
     Shared(const Shared<T>& other)
-    : pointer(other.pointer)
-    , counter(other.counter)
+      : pointer(other.pointer)
+      , controlBlock(other.controlBlock)
     {
-      ++(*this->counter);
+      this->controlBlock->increaseUsePointer();
     }
 
     /**
      * @brief Move constructor
      */
     Shared(Shared&& other)
-    : pointer(nullptr)
-    {
-      std::cout << "TODO" << std::endl;
-    }
+      : pointer(std::exchange(other.pointer, nullptr))
+      , controlBlock(std::exchange(other.controlBlock, nullptr))
+    {}
 
     /**
      * @brief Copy assignment
      */
     Shared& operator=(const Shared& other) {
-      if (this->counter->get() == 0) {
-        delete this->pointer;
-        delete this->counter;
-      }
+      deletePointers();
 
       this->pointer = other.pointer;
-      this->counter = other.counter;
-      ++(*this->counter);
+      this->controlBlock = other.controlBlock;
+      this->controlBlock->increaseUsePointer();
       return *this;
     }
 
@@ -93,7 +91,8 @@ namespace sp {
      * @brief Move assignment
      */
     Shared& operator=(Shared&& other) {
-      std::cout << "TODO" << std::endl;
+      std::swap(this->pointer, other.pointer);
+      std::swap(this->controlBlock, other.controlBlock);
       return *this;
     }
 
@@ -122,7 +121,7 @@ namespace sp {
      * @brief Get the reference number on raw data
      */
     std::size_t count() const {
-      return this->counter->get();
+      return this->controlBlock->getUsePointer();
     }
 
     /**
@@ -136,7 +135,32 @@ namespace sp {
 
   private:
     T* pointer;
-    PtrCounter* counter;
+    ControlBlock* controlBlock;
+
+    Shared(T* ptr, ControlBlock* ctrlB)
+      : pointer(ptr)
+      , controlBlock(ctrlB)
+    {
+      if (this->pointer != nullptr) {
+        this->controlBlock->increaseUsePointer();
+      }
+    }
+
+    void deletePointers() {
+      if (this->pointer != nullptr) {
+        this->controlBlock->decreaseUsePointer();
+
+        if (this->controlBlock->getUsePointer() == 0) {
+          delete this->pointer;
+          this->pointer = nullptr;
+
+          if (this->controlBlock->getWeakPointer() == 0) {
+            delete this->controlBlock;
+            this->controlBlock = nullptr;
+          }
+        }
+      }
+    }
   };
 }
 
