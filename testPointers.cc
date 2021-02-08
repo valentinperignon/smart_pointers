@@ -8,23 +8,16 @@
 
 TEST(TestUniquePointer, Move) {
   sp::Unique<int> first(new int(4));
-
   sp::Unique<int> second = std::move(first);
-
-  EXPECT_EQ(first.get(), nullptr);
 
   EXPECT_EQ(*second, 4);
 }
 
 TEST(TestUniquePointer, MoveEmpty) {
   sp::Unique<int> first;
-
   EXPECT_FALSE(first.exists());
 
   sp::Unique<int> second = std::move(first);
-
-  EXPECT_EQ(first.get(), nullptr);
-
   EXPECT_FALSE(second.exists());
   EXPECT_EQ(second.get(), nullptr);
 }
@@ -33,10 +26,7 @@ TEST(TestUniquePointer, MoveAssignment) {
   sp::Unique<int> first(new int(6));
 
   sp::Unique<int> second;
-
   second = std::move(first);
-
-  first.~Unique();
 
   EXPECT_EQ(*second, 6);
 }
@@ -71,9 +61,7 @@ TEST(TestUniquePointer, GetModified) {
   sp::Unique<int> unique(new int(15));
 
   int* number = unique.get();
-
   *number = 20;
-
   EXPECT_EQ(*unique, 20);
 }
 
