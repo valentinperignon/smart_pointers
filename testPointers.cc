@@ -222,6 +222,58 @@ TEST(TestWeakPointer, ConstructorWithValue) {
   EXPECT_EQ(*shFromWk, 42);
 }
 
+TEST(TestWeakPointer, MoveAssigment) {
+  sp::Weak<std::string> weak0;
+
+  {
+    sp::Shared<std::string> shared(new std::string("Should we use a Trello ? "));
+
+    EXPECT_EQ(*shared, "Should we use a Trello ? ");
+
+    sp::Weak<std::string> weak1(shared);
+
+    EXPECT_TRUE(shared.exists());
+
+    sp::Weak<std::string> weak2(weak1);
+
+    EXPECT_TRUE(weak1.lock().exists());
+    EXPECT_EQ(*weak1.lock(), *weak2.lock());
+
+    weak0 = std::move(weak2);
+    EXPECT_TRUE(weak0.lock().exists());
+  }
+
+  EXPECT_FALSE(weak0.lock().exists());
+}
+
+TEST(TestWeakPointer, MoveConstructor) {
+  sp::Weak<double> weak0;
+  {
+    sp::Shared<double> shared = new double(3.14);
+
+    {
+      sp::Weak<double> weak1 = shared;
+
+      EXPECT_EQ(*weak1.lock().get(), 3.14);
+
+      sp::Weak<double> weak2 = std::move(weak1);
+
+      EXPECT_EQ(*weak2.lock().get(), 3.14);
+    }
+    weak0 = shared;
+    EXPECT_TRUE(shared.exists());
+    EXPECT_EQ(*weak0.lock().get(), 3.14);
+  }
+  EXPECT_FALSE(weak0.lock().exists());
+
+  sp::Shared<double> shared2(new double(42.0));
+  weak0 = shared2;
+  EXPECT_TRUE(weak0.lock().exists());
+  EXPECT_EQ(*weak0.lock().get(), 42.0);
+}
+
+
+
 /* ---------- main ---------- */
 
 int main(int argc, char* argv[]) {

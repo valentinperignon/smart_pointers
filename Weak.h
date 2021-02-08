@@ -70,7 +70,6 @@ namespace sp {
      */
     Weak& operator=(Weak&& other) {
       deletePointers();
-      
       std::swap(this->pointer, other.pointer);
       std::swap(this->controlBlock, other.controlBlock);
       return *this;
@@ -80,6 +79,7 @@ namespace sp {
      * @brief Assignment from Shared
      */
     Weak& operator=(Shared<T>& shared) {
+      this->deletePointers();
       this->pointer = shared.pointer;
       this->controlBlock = shared.controlBlock;
       this->controlBlock->increaseWeakPointer();
@@ -110,9 +110,9 @@ namespace sp {
         this->controlBlock->decreaseWeakPointer();
 
         if (
-            this->controlBlock->getUsePointer() == 0
-              &&
-            this->controlBlock->getWeakPointer() == 0
+          this->controlBlock->getUsePointer() == 0
+          &&
+          this->controlBlock->getWeakPointer() == 0
           ) {
           delete this->controlBlock;
           this->controlBlock = nullptr;
