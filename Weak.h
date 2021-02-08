@@ -55,6 +55,8 @@ namespace sp {
      * @brief Copy assignment
      */
     Weak& operator=(const Weak& other) {
+      deletePointers();
+      
       this->pointer = other.pointer;
       this->controlBlock = other.controlBlock;
       this->controlBlock->increaseWeakPointer();
