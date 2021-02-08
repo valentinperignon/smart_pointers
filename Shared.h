@@ -4,8 +4,6 @@
 #include <cstddef>
 #include <utility>
 
-#include <iostream>
-
 namespace sp {
   /**
    * @brief Counter of smart pointers
@@ -29,7 +27,7 @@ namespace sp {
   private:
     size_t useCount;
 
-    size_t weakCount;  
+    size_t weakCount;
   };
 
   /**
@@ -64,7 +62,9 @@ namespace sp {
       : pointer(other.pointer)
       , controlBlock(other.controlBlock)
     {
-      this->controlBlock->increaseUsePointer();
+      if (this->controlBlock != nullptr) {
+        this->controlBlock->increaseUsePointer();
+      }
     }
 
     /**
@@ -83,7 +83,9 @@ namespace sp {
 
       this->pointer = other.pointer;
       this->controlBlock = other.controlBlock;
-      this->controlBlock->increaseUsePointer();
+      if (this->controlBlock != nullptr) {
+        this->controlBlock->increaseUsePointer();
+      }
       return *this;
     }
 
@@ -121,6 +123,9 @@ namespace sp {
      * @brief Get the reference number on raw data
      */
     std::size_t count() const {
+      if (this->controlBlock == nullptr) {
+        return 0;
+      }
       return this->controlBlock->getUsePointer();
     }
 

@@ -174,13 +174,36 @@ TEST(TestSharedPointer, Count) {
   EXPECT_EQ(sh3.count(), 3u);
 }
 
+TEST(TestSharedPointer, CountNull) {
+  sp::Shared<int> sh1;
+  EXPECT_EQ(sh1.count(), 0u);
+  EXPECT_FALSE(sh1.exists());
+
+  sp::Shared<int> sh2 = sh1;
+  EXPECT_EQ(sh2.count(), 0u);
+  EXPECT_FALSE(sh2.exists());
+
+  sp::Shared<int> sh3;
+  sh3 = sh2;
+  EXPECT_EQ(sh3.count(), 0u);
+  EXPECT_FALSE(sh3.exists());
+}
+
 /* ---------- Weak Pointer ---------- */
 
 TEST(TestWeakPointer, ConstructorWithValue) {
-  sp::Shared<int> sp(new int(42));
-  sp::Weak<int> wk(sp);
-  EXPECT_TRUE(wk.lock().exists());
+  sp::Shared<int> sh(new int(42));
+
+  sp::Weak<int> wk(sh);
+  EXPECT_EQ(sh.count(), 1u);
+  sp::Shared<int> shFromWk = wk.lock();
+  EXPECT_EQ(sh.count(), 2u);
+
+  EXPECT_TRUE(shFromWk.exists());
+  EXPECT_EQ(*shFromWk, 42);
 }
+
+/* ---------- main ---------- */
 
 int main(int argc, char* argv[]) {
   ::testing::InitGoogleTest(&argc, argv);
