@@ -322,8 +322,10 @@ TEST(TestWeakPointer, Count) {
   
   {
     sp::Shared<int> fromWk1 = wk1.lock();
-    EXPECT_EQ(fromWk1.count(), 2u);
+    EXPECT_EQ(sh.count(), 2u);
   }
+
+  EXPECT_EQ(sh.count(), 1u);
 }
 
 TEST(TestWeakPointer, LifeCycleSimple) {

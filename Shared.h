@@ -12,21 +12,38 @@ namespace sp {
   public:
     ControlBlock();
 
+    /**
+     * @brief Get the number of shared pointer
+     */
     size_t getUsePointer() const;
 
+    /**
+     * @brief Get the number of weak pointer
+     */
     size_t getWeakPointer() const;
 
+    /**
+     * @brief Increase by one the shared pointer counter
+     */
     void increaseUsePointer();
 
+    /**
+     * @brief Decrease by one the shared pointer counter
+     */
     void decreaseUsePointer();
 
+    /**
+     * @brief Increase by one the weak pointer counter
+     */
     void increaseWeakPointer();
 
+    /**
+     * @brief Decrease by one the weak pointer counter
+     */
     void decreaseWeakPointer();
 
   private:
     size_t useCount;
-
     size_t weakCount;
   };
 
