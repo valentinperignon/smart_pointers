@@ -132,6 +132,7 @@ TEST(TestSharedPointer, ArrowPointer) {
   sh.get()->b = 4242;
   EXPECT_EQ(sh->a, 42);
   EXPECT_EQ(sh->b, 4242);
+
 }
 
 TEST(TestSharedPointer, Count) {
@@ -173,7 +174,19 @@ TEST(TestSharedPointer, CountNull) {
   EXPECT_FALSE(sh3.exists());
 }
 
+TEST(TestSharedPointer, Exists) {
+  sp::Shared<int> sh1;
+  EXPECT_FALSE(sh1.exists());
+
+  sp::Shared<int> sh2(new int(42));
+  EXPECT_TRUE(sh2.exists());
+
+  sh1 = sh2;
+  EXPECT_TRUE(sh1.exists());
+}
+
 /* ---------- Weak Pointer ---------- */
+
 TEST(TestWeakPointer, Default) {
   sp::Shared<int> shared(new int(42));
   EXPECT_EQ(*shared, 42);
