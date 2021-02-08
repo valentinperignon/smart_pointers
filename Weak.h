@@ -112,9 +112,9 @@ namespace sp {
         this->controlBlock->decreaseWeakPointer();
 
         if (
-            this->controlBlock->getUsePointer() == 0
-              &&
-            this->controlBlock->getWeakPointer() == 0
+          this->controlBlock->getUsePointer() == 0
+          &&
+          this->controlBlock->getWeakPointer() == 0
           ) {
           delete this->controlBlock;
           this->controlBlock = nullptr;
