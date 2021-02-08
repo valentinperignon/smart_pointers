@@ -57,7 +57,7 @@ namespace sp {
      * @brief Copy assignment
      */
     Weak& operator=(const Weak& other) {
-      deletePointers();
+      this->deletePointers();
 
       this->pointer = other.pointer;
       this->controlBlock = other.controlBlock;
@@ -69,7 +69,7 @@ namespace sp {
      * @brief Move assignment
      */
     Weak& operator=(Weak&& other) {
-      deletePointers();
+      this->deletePointers();
       
       std::swap(this->pointer, other.pointer);
       std::swap(this->controlBlock, other.controlBlock);
@@ -80,6 +80,8 @@ namespace sp {
      * @brief Assignment from Shared
      */
     Weak& operator=(Shared<T>& shared) {
+      this->deletePointers();
+      
       this->pointer = shared.pointer;
       this->controlBlock = shared.controlBlock;
       this->controlBlock->increaseWeakPointer();
@@ -94,7 +96,7 @@ namespace sp {
      * retrun a non existing Shared pointeur.
      */
     Shared<T> lock() {
-      if (this->controlBlock->getUsePointer() == 0) {
+      if (this->controlBlock == nullptr || this->controlBlock->getUsePointer() == 0) {
         return Shared<T>(nullptr);
       }
       return Shared<T>(this->pointer, this->controlBlock);

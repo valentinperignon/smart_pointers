@@ -223,6 +223,76 @@ TEST(TestWeakPointer, ConstructorWithValue) {
   EXPECT_EQ(*shFromWk, 42);
 }
 
+TEST(TestWeakPointer, ConstructorWithoutValue) {
+  sp::Weak<int> wk;
+  EXPECT_FALSE(wk.lock().exists());
+}
+
+TEST(TestWeakPointer, CopyConstructorAndAssignement) {
+  sp::Shared<int> sh(new int(42));
+
+  sp::Weak<int> wk1(sh);
+  sp::Shared<int> shFromWk1 = wk1.lock();
+
+  sp::Weak<int> wk2 = wk1;
+  sp::Shared<int> shFromWk2 = wk2.lock();
+  EXPECT_EQ(shFromWk1.count(), shFromWk2.count());
+  EXPECT_EQ(*shFromWk1, *shFromWk2);
+}
+
+TEST(TestWeakPointer, MoveConstructorAndAssignement) {
+
+}
+
+TEST(TestWeakPointer, EqualSharedOperator) {
+  sp::Shared<int> sh(new int(42));
+  EXPECT_EQ(sh.count(), 1u);
+
+  sp::Shared<int> tmp(new int(4242));
+  sp::Weak<int> wk(tmp);
+  EXPECT_EQ(*(wk.lock()), 4242);
+
+  wk = sh;
+  sp::Shared<int> shFromWk = wk.lock();
+  EXPECT_EQ(*shFromWk, 42);
+  EXPECT_EQ(shFromWk.count(), 2u);
+}
+
+TEST(TestWeakPointer, Lock) {
+  sp::Shared<int> sh(new int(42));
+  sp::Weak<int> wk(sh);
+
+  sp::Shared<int> shFromWk = wk.lock();
+  EXPECT_EQ(*shFromWk, 42);
+  EXPECT_EQ(shFromWk.count(), 2u);
+}
+
+TEST(TestWeakPointer, Count) {
+  sp::Shared<int> sh(new int(42));
+  EXPECT_EQ(sh.count(), 1u);
+
+  sp::Weak<int> wk1 = sh;
+  sp::Weak<int> wk2 = sh;
+  
+  {
+    sp::Shared<int> fromWk1 = wk1.lock();
+    EXPECT_EQ(fromWk1.count(), 2u);
+  }
+}
+
+TEST(TestWeakPointer, LifeCycleSimple) {
+  sp::Weak<int> wk;
+  EXPECT_FALSE(wk.lock().exists());
+
+  {
+    sp::Shared<int> sh(new int(42));
+    wk = sh;
+    EXPECT_TRUE(wk.lock().exists());
+  }
+
+  EXPECT_FALSE(wk.lock().exists());
+}
+
 /* ---------- main ---------- */
 
 int main(int argc, char* argv[]) {
