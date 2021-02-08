@@ -24,7 +24,9 @@ namespace sp {
     Weak(const Shared<T>& shared)
       : pointer(shared.pointer)
       , controlBlock(shared.controlBlock)
-    {}
+    {
+      this->controlBlock->increaseWeakPointer();
+    }
 
     /**
      * @brief Destructeur
@@ -56,7 +58,7 @@ namespace sp {
      */
     Weak& operator=(const Weak& other) {
       deletePointers();
-      
+
       this->pointer = other.pointer;
       this->controlBlock = other.controlBlock;
       this->controlBlock->increaseWeakPointer();
@@ -92,6 +94,9 @@ namespace sp {
      * retrun a non existing Shared pointeur.
      */
     Shared<T> lock() {
+      if (this->controlBlock->getUsePointer() == 0) {
+        return Shared<T>(nullptr);
+      }
       return Shared<T>(this->pointer, this->controlBlock);
     }
 
