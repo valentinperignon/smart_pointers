@@ -190,6 +190,30 @@ TEST(TestSharedPointer, CountNull) {
 }
 
 /* ---------- Weak Pointer ---------- */
+TEST(TestWeakPointer, Default) {
+  sp::Shared<int> shared(new int(42));
+  EXPECT_EQ(*shared, 42);
+
+  sp::Weak<int> weak1(shared);
+  {
+    auto tmp = weak1.lock();
+    EXPECT_TRUE(tmp.exists());
+    (*tmp) /= 2;
+    EXPECT_EQ(*tmp, 21);
+  }
+
+  shared = sp::Shared<int>(new int(1337));
+
+  sp::Weak<int> weak2(shared);
+
+  {
+    auto tmp = weak1.lock();
+    EXPECT_FALSE(tmp.exists());
+
+    tmp = weak2.lock();
+    EXPECT_EQ(*tmp, 1337);
+  }
+}
 
 TEST(TestWeakPointer, ConstructorWithValue) {
   sp::Shared<int> sh(new int(42));
