@@ -8,23 +8,16 @@
 
 TEST(TestUniquePointer, Move) {
   sp::Unique<int> first(new int(4));
-
   sp::Unique<int> second = std::move(first);
-
-  EXPECT_EQ(first.get(), nullptr);
 
   EXPECT_EQ(*second, 4);
 }
 
 TEST(TestUniquePointer, MoveEmpty) {
   sp::Unique<int> first;
-
   EXPECT_FALSE(first.exists());
 
   sp::Unique<int> second = std::move(first);
-
-  EXPECT_EQ(first.get(), nullptr);
-
   EXPECT_FALSE(second.exists());
   EXPECT_EQ(second.get(), nullptr);
 }
@@ -33,10 +26,7 @@ TEST(TestUniquePointer, MoveAssignment) {
   sp::Unique<int> first(new int(6));
 
   sp::Unique<int> second;
-
   second = std::move(first);
-
-  first.~Unique();
 
   EXPECT_EQ(*second, 6);
 }
@@ -71,9 +61,7 @@ TEST(TestUniquePointer, GetModified) {
   sp::Unique<int> unique(new int(15));
 
   int* number = unique.get();
-
   *number = 20;
-
   EXPECT_EQ(*unique, 20);
 }
 
@@ -144,6 +132,7 @@ TEST(TestSharedPointer, ArrowPointer) {
   sh.get()->b = 4242;
   EXPECT_EQ(sh->a, 42);
   EXPECT_EQ(sh->b, 4242);
+
 }
 
 TEST(TestSharedPointer, Count) {
@@ -185,7 +174,19 @@ TEST(TestSharedPointer, CountNull) {
   EXPECT_FALSE(sh3.exists());
 }
 
+TEST(TestSharedPointer, Exists) {
+  sp::Shared<int> sh1;
+  EXPECT_FALSE(sh1.exists());
+
+  sp::Shared<int> sh2(new int(42));
+  EXPECT_TRUE(sh2.exists());
+
+  sh1 = sh2;
+  EXPECT_TRUE(sh1.exists());
+}
+
 /* ---------- Weak Pointer ---------- */
+
 TEST(TestWeakPointer, Default) {
   sp::Shared<int> shared(new int(42));
   EXPECT_EQ(*shared, 42);
