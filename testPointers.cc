@@ -13,15 +13,6 @@ TEST(TestUniquePointer, Move) {
   EXPECT_EQ(*second, 4);
 }
 
-TEST(TestUniquePointer, MoveEmpty) {
-  sp::Unique<int> first;
-  EXPECT_FALSE(first.exists());
-
-  sp::Unique<int> second = std::move(first);
-  EXPECT_FALSE(second.exists());
-  EXPECT_EQ(second.get(), nullptr);
-}
-
 TEST(TestUniquePointer, MoveAssignment) {
   sp::Unique<int> first(new int(6));
 
@@ -29,6 +20,18 @@ TEST(TestUniquePointer, MoveAssignment) {
   second = std::move(first);
 
   EXPECT_EQ(*second, 6);
+}
+
+TEST(TestUniquePointer, MoveEmpty) {
+  sp::Unique<int> first;
+  EXPECT_FALSE(first.exists());
+
+  sp::Unique<int> second = std::move(first);
+  EXPECT_FALSE(second.exists());
+
+  sp::Unique<int> third;
+  third = std::move(second);
+  EXPECT_FALSE(third.exists());
 }
 
 TEST(TestUniquePointer, DoesExist) {
@@ -70,6 +73,7 @@ TEST(TestUniquePointer, GetModified) {
 TEST(TestSharedPointer, ConstructorWithValue) {
   sp::Shared<int> sh(new int(42));
   EXPECT_TRUE(sh.exists());
+  EXPECT_EQ(*sh, 42);
 }
 
 TEST(TestSharedPointer, DefaultConstructor) {
@@ -105,6 +109,18 @@ TEST(TestSharedPointer, MoveConstructorAndAssignement) {
   EXPECT_TRUE(sh3.exists());
 }
 
+TEST(TestSharedPointer, MoveEmpty) {
+  sp::Shared<double> first;
+  EXPECT_FALSE(first.exists());
+
+  sp::Shared<double> second = std::move(first);
+  EXPECT_FALSE(second.exists());
+
+  sp::Shared<double> third;
+  third = std::move(second);
+  EXPECT_FALSE(third.exists());
+}
+
 TEST(TestSharedPointer, Get) {
   sp::Shared<int> sh(new int(42));
 
@@ -124,15 +140,14 @@ TEST(TestSharedPointer, StarOperator) {
 TEST(TestSharedPointer, ArrowPointer) {
   struct t {
     int a;
-    int b;
+    double b;
   };
 
   sp::Shared<t> sh(new t);
   sh.get()->a = 42;
-  sh.get()->b = 4242;
+  sh.get()->b = 42.42;
   EXPECT_EQ(sh->a, 42);
-  EXPECT_EQ(sh->b, 4242);
-
+  EXPECT_EQ(sh->b, 42.42);
 }
 
 TEST(TestSharedPointer, Count) {
@@ -238,6 +253,12 @@ TEST(TestWeakPointer, CopyConstructorAndAssignement) {
   sp::Shared<int> shFromWk2 = wk2.lock();
   EXPECT_EQ(shFromWk1.count(), shFromWk2.count());
   EXPECT_EQ(*shFromWk1, *shFromWk2);
+
+  sp::Weak<int> wk3;
+  wk3 = wk1;
+  sp::Shared<int> shFromWk3 = wk3.lock();
+  EXPECT_EQ(shFromWk1.count(), shFromWk3.count());
+  EXPECT_EQ(*shFromWk1, *shFromWk3);
 }
 
 TEST(TestWeakPointer, MoveAssigment) {
@@ -245,7 +266,6 @@ TEST(TestWeakPointer, MoveAssigment) {
 
   {
     sp::Shared<std::string> shared(new std::string("Should we use a Trello ? "));
-
     EXPECT_EQ(*shared, "Should we use a Trello ? ");
 
     sp::Weak<std::string> weak1(shared);
@@ -278,6 +298,7 @@ TEST(TestWeakPointer, MoveConstructor) {
 
       EXPECT_EQ(*weak2.lock().get(), 3.14);
     }
+
     weak0 = shared;
     EXPECT_TRUE(shared.exists());
     EXPECT_EQ(*weak0.lock().get(), 3.14);
@@ -302,6 +323,8 @@ TEST(TestWeakPointer, EqualSharedOperator) {
   sp::Shared<int> shFromWk = wk.lock();
   EXPECT_EQ(*shFromWk, 42);
   EXPECT_EQ(shFromWk.count(), 2u);
+  EXPECT_EQ(shFromWk.count(), sh.count());
+  EXPECT_EQ(*shFromWk, *sh);
 }
 
 TEST(TestWeakPointer, Lock) {
@@ -309,8 +332,13 @@ TEST(TestWeakPointer, Lock) {
   sp::Weak<int> wk(sh);
 
   sp::Shared<int> shFromWk = wk.lock();
+  EXPECT_TRUE(shFromWk.exists());
   EXPECT_EQ(*shFromWk, 42);
   EXPECT_EQ(shFromWk.count(), 2u);
+
+  sp::Weak<double> wk2;
+  sp::Shared<double> shFromWk2 = wk2.lock();
+  EXPECT_FALSE(shFromWk2.exists());
 }
 
 TEST(TestWeakPointer, Count) {
@@ -323,6 +351,7 @@ TEST(TestWeakPointer, Count) {
   {
     sp::Shared<int> fromWk1 = wk1.lock();
     EXPECT_EQ(sh.count(), 2u);
+    EXPECT_EQ(sh.count(), fromWk1.count());
   }
 
   EXPECT_EQ(sh.count(), 1u);
