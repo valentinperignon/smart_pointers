@@ -2,35 +2,35 @@
 
 namespace sp {
   ControlBlock::ControlBlock()
-    : useCount(0)
-    , weakCount(0)
+    : m_useCount(0)
+    , m_weakCount(0)
   {}
 
   void ControlBlock::increaseUsePointer() {
-    ++this->useCount;
+    ++m_useCount;
   }
 
   void ControlBlock::decreaseUsePointer() {
-    if (this->useCount > 0) {
-      --this->useCount;
+    if (m_useCount > 0) {
+      --m_useCount;
     }
   }
 
   void ControlBlock::increaseWeakPointer() {
-    ++this->weakCount;
+    ++m_weakCount;
   }
 
   void ControlBlock::decreaseWeakPointer() {
-    if (this->weakCount > 0) {
-      --this->weakCount;
+    if (m_weakCount > 0) {
+      --m_weakCount;
     }
   }
 
   size_t ControlBlock::getUsePointer() const {
-    return this->useCount;
+    return m_useCount;
   }
 
   size_t ControlBlock::getWeakPointer() const {
-    return this->weakCount;
+    return m_weakCount;
   }
 }

@@ -14,18 +14,18 @@ namespace sp {
      * @brief Default constructor
      */
     Weak()
-      : pointer(nullptr)
-      , controlBlock(nullptr)
+      : m_pointer(nullptr)
+      , m_controlBlock(nullptr)
     {}
 
     /**
      * @brief Constructor takes a Shared pointer
      */
     Weak(const Shared<T>& shared)
-      : pointer(shared.pointer)
-      , controlBlock(shared.controlBlock)
+      : m_pointer(shared.m_pointer)
+      , m_controlBlock(shared.m_controlBlock)
     {
-      this->controlBlock->increaseWeakPointer();
+      m_controlBlock->increaseWeakPointer();
     }
 
     /**
@@ -39,29 +39,29 @@ namespace sp {
      * @brief Copy constructor
      */
     Weak(const Weak& other)
-      : pointer(other.pointer)
-      , controlBlock(other.controlBlock)
+      : m_pointer(other.m_pointer)
+      , m_controlBlock(other.m_controlBlock)
     {
-      this->controlBlock->increaseWeakPointer();
+      m_controlBlock->increaseWeakPointer();
     }
 
     /**
      * @brief Move constructor
      */
     Weak(Weak&& other)
-      : pointer(std::exchange(other.pointer, nullptr))
-      , controlBlock(std::exchange(other.controlBlock, nullptr))
+      : m_pointer(std::exchange(other.m_pointer, nullptr))
+      , m_controlBlock(std::exchange(other.m_controlBlock, nullptr))
     {}
 
     /**
      * @brief Copy assignment
      */
     Weak& operator=(const Weak& other) {
-      this->deletePointers();
+      deletePointers();
 
-      this->pointer = other.pointer;
-      this->controlBlock = other.controlBlock;
-      this->controlBlock->increaseWeakPointer();
+      m_pointer = other.m_pointer;
+      m_controlBlock = other.m_controlBlock;
+      m_controlBlock->increaseWeakPointer();
       return *this;
     }
 
@@ -69,10 +69,10 @@ namespace sp {
      * @brief Move assignment
      */
     Weak& operator=(Weak&& other) {
-      this->deletePointers();
+      deletePointers();
       
-      std::swap(this->pointer, other.pointer);
-      std::swap(this->controlBlock, other.controlBlock);
+      std::swap(m_pointer, other.m_pointer);
+      std::swap(m_controlBlock, other.m_controlBlock);
       return *this;
     }
 
@@ -80,11 +80,11 @@ namespace sp {
      * @brief Assignment from Shared
      */
     Weak& operator=(Shared<T>& shared) {
-      this->deletePointers();
+      deletePointers();
       
-      this->pointer = shared.pointer;
-      this->controlBlock = shared.controlBlock;
-      this->controlBlock->increaseWeakPointer();
+      m_pointer = shared.m_pointer;
+      m_controlBlock = shared.m_controlBlock;
+      m_controlBlock->increaseWeakPointer();
       return *this;
     }
 
@@ -96,28 +96,28 @@ namespace sp {
      * retrun a non existing Shared pointeur.
      */
     Shared<T> lock() {
-      if (this->controlBlock == nullptr || this->controlBlock->getUsePointer() == 0) {
+      if (m_controlBlock == nullptr || m_controlBlock->getUsePointer() == 0) {
         return Shared<T>(nullptr);
       }
-      return Shared<T>(this->pointer, this->controlBlock);
+      return Shared<T>(m_pointer, m_controlBlock);
     }
 
   private:
-    T* pointer;
-    ControlBlock* controlBlock;
+    T* m_pointer;
+    ControlBlock* m_controlBlock;
 
     void deletePointers() {
-      if (this->pointer != nullptr) {
-        this->pointer = nullptr;
-        this->controlBlock->decreaseWeakPointer();
+      if (m_pointer != nullptr) {
+        m_pointer = nullptr;
+        m_controlBlock->decreaseWeakPointer();
 
         if (
-          this->controlBlock->getUsePointer() == 0
+          m_controlBlock->getUsePointer() == 0
           &&
-          this->controlBlock->getWeakPointer() == 0
+          m_controlBlock->getWeakPointer() == 0
           ) {
-          delete this->controlBlock;
-          this->controlBlock = nullptr;
+          delete m_controlBlock;
+          m_controlBlock = nullptr;
         }
       }
     }

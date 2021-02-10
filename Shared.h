@@ -43,8 +43,8 @@ namespace sp {
     void decreaseWeakPointer();
 
   private:
-    size_t useCount;
-    size_t weakCount;
+    size_t m_useCount;
+    size_t m_weakCount;
   };
 
   /**
@@ -57,11 +57,11 @@ namespace sp {
      * @brief Constructor takes a dynamic pointer
      */
     Shared(T* ptr = nullptr)
-      : pointer(ptr)
-      , controlBlock(ptr != nullptr ? new ControlBlock() : nullptr)
+      : m_pointer(ptr)
+      , m_controlBlock(ptr != nullptr ? new ControlBlock() : nullptr)
     {
-      if (this->pointer != nullptr) {
-        this->controlBlock->increaseUsePointer();
+      if (m_pointer != nullptr) {
+        m_controlBlock->increaseUsePointer();
       }
     }
 
@@ -76,11 +76,11 @@ namespace sp {
      * @brief Copy constructor
      */
     Shared(const Shared<T>& other)
-      : pointer(other.pointer)
-      , controlBlock(other.controlBlock)
+      : m_pointer(other.m_pointer)
+      , m_controlBlock(other.m_controlBlock)
     {
-      if (this->controlBlock != nullptr) {
-        this->controlBlock->increaseUsePointer();
+      if (m_controlBlock != nullptr) {
+        m_controlBlock->increaseUsePointer();
       }
     }
 
@@ -88,8 +88,8 @@ namespace sp {
      * @brief Move constructor
      */
     Shared(Shared&& other)
-      : pointer(std::exchange(other.pointer, nullptr))
-      , controlBlock(std::exchange(other.controlBlock, nullptr))
+      : m_pointer(std::exchange(other.m_pointer, nullptr))
+      , m_controlBlock(std::exchange(other.m_controlBlock, nullptr))
     {}
 
     /**
@@ -98,10 +98,10 @@ namespace sp {
     Shared& operator=(const Shared& other) {
       deletePointers();
 
-      this->pointer = other.pointer;
-      this->controlBlock = other.controlBlock;
-      if (this->controlBlock != nullptr) {
-        this->controlBlock->increaseUsePointer();
+      m_pointer = other.m_pointer;
+      m_controlBlock = other.m_controlBlock;
+      if (m_controlBlock != nullptr) {
+        m_controlBlock->increaseUsePointer();
       }
       return *this;
     }
@@ -110,8 +110,8 @@ namespace sp {
      * @brief Move assignment
      */
     Shared& operator=(Shared&& other) {
-      std::swap(this->pointer, other.pointer);
-      std::swap(this->controlBlock, other.controlBlock);
+      std::swap(m_pointer, other.m_pointer);
+      std::swap(m_controlBlock, other.m_controlBlock);
       return *this;
     }
 
@@ -119,66 +119,66 @@ namespace sp {
      * @brief Get the raw pointer
      */
     T* get() {
-      return this->pointer;
+      return m_pointer;
     }
 
     /**
      * @brief Get a reference on pointed data
      */
     T& operator*() {
-      return *(this->pointer);
+      return *(m_pointer);
     }
 
     /**
      * @brief Get the raw pointer
      */
     T* operator->() {
-      return this->pointer;
+      return m_pointer;
     }
 
     /**
      * @brief Get the reference number on raw data
      */
     std::size_t count() const {
-      if (this->controlBlock == nullptr) {
+      if (m_controlBlock == nullptr) {
         return 0;
       }
-      return this->controlBlock->getUsePointer();
+      return m_controlBlock->getUsePointer();
     }
 
     /**
      * @brief Get the number of Shared pointed on the current pointer
      */
     bool exists() const {
-      return this->pointer != nullptr;
+      return m_pointer != nullptr;
     }
 
     template<typename> friend class Weak;
 
   private:
-    T* pointer;
-    ControlBlock* controlBlock;
+    T* m_pointer;
+    ControlBlock* m_controlBlock;
 
     Shared(T* ptr, ControlBlock* ctrlB)
-      : pointer(ptr)
-      , controlBlock(ctrlB)
+      : m_pointer(ptr)
+      , m_controlBlock(ctrlB)
     {
-      if (this->pointer != nullptr) {
-        this->controlBlock->increaseUsePointer();
+      if (m_pointer != nullptr) {
+        m_controlBlock->increaseUsePointer();
       }
     }
 
     void deletePointers() {
-      if (this->pointer != nullptr) {
-        this->controlBlock->decreaseUsePointer();
+      if (m_pointer != nullptr) {
+        m_controlBlock->decreaseUsePointer();
 
-        if (this->controlBlock->getUsePointer() == 0) {
-          delete this->pointer;
-          this->pointer = nullptr;
+        if (m_controlBlock->getUsePointer() == 0) {
+          delete m_pointer;
+          m_pointer = nullptr;
 
-          if (this->controlBlock->getWeakPointer() == 0) {
-            delete this->controlBlock;
-            this->controlBlock = nullptr;
+          if (m_controlBlock->getWeakPointer() == 0) {
+            delete m_controlBlock;
+            m_controlBlock = nullptr;
           }
         }
       }

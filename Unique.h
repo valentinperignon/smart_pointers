@@ -12,14 +12,14 @@ namespace sp {
      * @brief Constructor takes a dynamic pointer
      */
     Unique(T* ptr = nullptr)
-      : pointer(ptr)
+      : m_pointer(ptr)
     { }
 
     /**
      * @brief Destructor
      */
     ~Unique() {
-      delete this->pointer;
+      delete m_pointer;
     }
 
     /**
@@ -30,7 +30,7 @@ namespace sp {
     /**
      * @brief Move constructor
      */
-    Unique(Unique&& other) : pointer(std::exchange(other.pointer, nullptr)) {}
+    Unique(Unique&& other) : m_pointer(std::exchange(other.m_pointer, nullptr)) {}
 
     /**
      * @brief Copy assignment - deleted
@@ -41,7 +41,7 @@ namespace sp {
      * @brief Move assignment
      */
     Unique& operator=(Unique&& other) {
-      std::swap(this->pointer, other.pointer);
+      std::swap(m_pointer, other.m_pointer);
       return *this;
     }
 
@@ -49,32 +49,32 @@ namespace sp {
      * @brief Get the raw pointer
      */
     T* get() {
-      return this->pointer;
+      return m_pointer;
     }
 
     /**
      * @brief Get a reference on pointed data
      */
     T& operator*() {
-      return *(this->pointer);
+      return *(m_pointer);
     }
 
     /**
      * @brief Get the raw pointer
      */
     T* operator->() {
-      return this->pointer;
+      return m_pointer;
     }
 
     /**
      * @brief Check if the raw pointer exists
      */
     bool exists() const {
-      return this->pointer != nullptr;
+      return m_pointer != nullptr;
     }
 
   private:
-    T* pointer;
+    T* m_pointer;
   };
 }
 
