@@ -327,6 +327,28 @@ TEST(TestWeakPointer, EqualSharedOperator) {
   EXPECT_EQ(*shFromWk, *sh);
 }
 
+TEST(TestWeakPointer, EmptyShared) {
+  sp::Shared<double> sh;
+  EXPECT_EQ(sh.count(), 0u);
+
+  sp::Weak<double> wk1(sh);
+  EXPECT_EQ(wk1.lock().count(), 0u);
+
+  sp::Weak<double> wk2 = wk1;
+  EXPECT_EQ(wk2.lock().count(), 0u);
+
+  sp::Weak<double> wk3;
+  wk3 = wk2;
+  EXPECT_EQ(wk3.lock().count(), 0u);
+
+  sp::Weak<double> wk4 = std::move(wk3);
+  EXPECT_EQ(wk4.lock().count(), 0u);
+
+  sp::Weak<double> wk5;
+  wk5 = std::move(wk2);
+  EXPECT_EQ(wk5.lock().count(), 0u);
+}
+
 TEST(TestWeakPointer, Lock) {
   sp::Shared<int> sh(new int(42));
   sp::Weak<int> wk(sh);

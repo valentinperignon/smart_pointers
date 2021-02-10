@@ -25,7 +25,9 @@ namespace sp {
       : m_pointer(shared.m_pointer)
       , m_controlBlock(shared.m_controlBlock)
     {
-      m_controlBlock->increaseWeakPointer();
+      if (m_controlBlock != nullptr) {
+        m_controlBlock->increaseWeakPointer();
+      }
     }
 
     /**
@@ -42,7 +44,9 @@ namespace sp {
       : m_pointer(other.m_pointer)
       , m_controlBlock(other.m_controlBlock)
     {
-      m_controlBlock->increaseWeakPointer();
+      if (m_controlBlock) {
+        m_controlBlock->increaseWeakPointer();
+      }
     }
 
     /**
@@ -61,7 +65,9 @@ namespace sp {
 
       m_pointer = other.m_pointer;
       m_controlBlock = other.m_controlBlock;
-      m_controlBlock->increaseWeakPointer();
+      if (m_controlBlock != nullptr)  {
+        m_controlBlock->increaseWeakPointer();
+      }
       return *this;
     }
 
@@ -84,7 +90,9 @@ namespace sp {
       
       m_pointer = shared.m_pointer;
       m_controlBlock = shared.m_controlBlock;
-      m_controlBlock->increaseWeakPointer();
+      if (m_controlBlock != nullptr) {
+        m_controlBlock->increaseWeakPointer();
+      }
       return *this;
     }
 

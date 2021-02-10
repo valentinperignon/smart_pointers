@@ -60,7 +60,7 @@ namespace sp {
       : m_pointer(ptr)
       , m_controlBlock(ptr != nullptr ? new ControlBlock() : nullptr)
     {
-      if (m_pointer != nullptr) {
+      if (m_controlBlock != nullptr) {
         m_controlBlock->increaseUsePointer();
       }
     }
