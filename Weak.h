@@ -101,7 +101,7 @@ namespace sp {
      *
      * If the raw pointer still exists, the method
      * initialize a Shared object. Otherwise, the method
-     * retrun a non existing Shared pointeur.
+     * return a non existing Shared pointer.
      */
     Shared<T> lock() {
       if (m_controlBlock == nullptr || m_controlBlock->getUsePointer() == 0) {
